@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F1E8">
+<title>Her Will Funnel Calculator</title>
+<meta name="description" content="Type any budget and funnel rates to see Her Will subscriptions, revenue and the budget needed for the goal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap">
+<style>
+:root{
+  --ink:#16101A; --plum:#241530; --ivory:#F7F1E8; --paper:#FFFBF5;
+  --pink:#EC5F94; --pink2:#F6A3C0; --pink-ink:#C93F7A; --blush:#F4D9DD;
+  --gold:#C7A15F; --text:#241829; --muted:#76697C; --line:rgba(36,24,41,.13); --line2:rgba(36,24,41,.22);
+  --red:#C8324F;
+  --head:'Poppins','Segoe UI',Arial,sans-serif; --sans:'Inter','Segoe UI',Arial,sans-serif;
+  --panel:linear-gradient(180deg,#241530,#16101A);
+}
+*{box-sizing:border-box}
+html{font-variant-numeric:lining-nums tabular-nums;-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--sans);color:var(--text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  background:radial-gradient(900px 500px at 95% -10%,rgba(236,95,148,.13),transparent 60%),radial-gradient(700px 420px at -5% 110%,rgba(199,161,95,.14),transparent 60%),var(--ivory)}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+
+.wrap{max-width:1360px;margin:0 auto;padding:18px 24px;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:center;gap:14px}
+
+/* header */
+header{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap}
+.eb{font-size:10.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--pink-ink)}
+h1{margin:3px 0 0;font-family:var(--head);font-weight:600;font-size:28px;line-height:1.1;letter-spacing:-.02em;color:var(--plum)}
+h1 em{font-style:normal;color:var(--pink)}
+.tools{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap}
+.seg{display:flex;padding:3px;border-radius:30px;background:#fff;border:1px solid var(--line2)}
+.seg button{border:0;background:none;border-radius:30px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;touch-action:manipulation}
+.seg button:hover{color:var(--pink-ink)}
+.seg button.on{background:var(--plum);color:#fff}
+.reset{border:0;background:none;color:var(--pink-ink);font-weight:700;font-size:12.5px;cursor:pointer;padding:8px 2px;white-space:nowrap}
+
+.nojs{margin:0;padding:10px 14px;border-radius:8px;background:#FFF4DC;border:1px solid rgba(199,161,95,.5);color:#6B4E14;font-size:13px;line-height:1.45}
+.nojs b{color:#3D2B06}
+
+/* layout */
+.grid{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1.1fr) minmax(0,1fr);grid-template-rows:auto 1fr;grid-template-areas:"inputs tiles tiles" "inputs funnel lists";gap:14px}
+.card{background:#fff;border:1px solid rgba(36,24,41,.12);border-radius:10px;box-shadow:0 14px 34px -22px rgba(36,21,48,.3)}
+.k{font-size:10.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--pink-ink)}
+
+/* result cards */
+.tiles{grid-area:tiles;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile{padding:12px 16px;min-width:0}
+.tile .k{letter-spacing:.14em}
+.tile .v{font-family:var(--head);font-weight:600;font-size:26px;line-height:1.1;margin-top:6px;white-space:nowrap}
+.tile .s{font-size:11.5px;color:var(--muted);margin-top:3px}
+.tile.dark{background:var(--panel);border-color:transparent}
+.tile.dark .k{color:var(--gold)}
+.tile.dark .v{color:#fff}
+.tile.dark .s{color:rgba(245,238,230,.72)}
+.mini{height:5px;border-radius:30px;background:rgba(255,255,255,.14);margin-top:8px;overflow:hidden}
+.mini i{display:block;height:100%;width:0;border-radius:30px;background:linear-gradient(90deg,var(--gold),var(--pink));transition:width .4s ease}
+.badge{display:none;margin-left:6px;font-size:9px;letter-spacing:.12em;color:#fff;background:var(--pink);border-radius:30px;padding:2px 7px;vertical-align:1px}
+.is-locked .badge{display:inline-block}
+
+/* inputs */
+.inputs{grid-area:inputs;padding:14px 18px 10px;align-self:start}
+.lockrow{display:flex;flex-direction:column;gap:3px;padding:10px 12px;border-radius:8px;background:var(--blush)}
+.lockrow small{font-size:11px;color:#8E2E5A;line-height:1.35}
+.lk{display:flex;align-items:center;gap:10px;font:600 14px var(--head);cursor:pointer;user-select:none;-webkit-user-select:none}
+.lk input{position:absolute;opacity:0;width:0;height:0}
+.lk i{position:relative;flex:none;width:38px;height:22px;border-radius:30px;background:rgba(36,24,41,.25);transition:background .2s}
+.lk i::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.lk input:checked + i{background:var(--pink)}
+.lk input:checked + i::after{transform:translateX(16px)}
+.lk input:focus-visible + i{outline:2px solid var(--pink);outline-offset:2px}
+.err{margin:10px 0 0;padding:9px 12px;border-radius:8px;background:#FBE3E6;color:#8E1F35;font-size:12.5px;font-weight:600;display:none}
+.err.show{display:block}
+.grp{margin-top:12px;min-width:0}
+.grp h2{margin:0 0 2px;font-size:10.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--pink-ink)}
+.fld{display:grid;grid-template-columns:minmax(0,1fr) 116px;gap:1px 10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);scroll-margin-top:84px}
+.fld:last-child{border-bottom:0}
+.fld label{font-family:var(--head);font-weight:600;font-size:13.5px;line-height:1.25}
+.fld small{grid-column:1;font-size:11px;color:var(--muted);line-height:1.3}
+.box{grid-row:1/span 2;grid-column:2;display:flex;align-items:center;height:36px;border:1.5px solid var(--line2);border-radius:8px;background:var(--paper);overflow:hidden;transition:border-color .15s}
+.box:focus-within{border-color:var(--pink);background:#fff}
+.box.bad{border-color:var(--red)}
+.box .u{font-size:12px;font-weight:700;color:var(--muted);padding:0 8px;white-space:nowrap}
+.box input + .u{padding-left:0}
+.box input{flex:1;min-width:0;width:100%;height:100%;border:0;background:transparent;padding:0 8px;font:600 15px var(--head);text-align:right;outline:none}
+.box input::-webkit-inner-spin-button{opacity:.4}
+.box.calc{background:var(--blush);border-color:var(--pink2)}
+.box.calc input{color:var(--pink-ink);cursor:default;-moz-appearance:textfield}
+.box.calc input::-webkit-inner-spin-button,.box.calc input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.st{display:none;flex:none;width:36px;height:100%;border:0;background:rgba(36,24,41,.05);font-size:19px;font-weight:600;line-height:1;color:var(--plum);cursor:pointer;align-items:center;justify-content:center;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.st:active{background:var(--pink2)}
+.box.calc .st{opacity:.3;pointer-events:none}
+
+/* funnel */
+.funnel-card{grid-area:funnel;padding:16px 18px 12px;display:flex;flex-direction:column;min-width:0}
+.funnel-card > .k{margin-bottom:12px}
+.funnel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.fb{min-width:max-content;max-width:100%;padding:0 14px;height:44px;border-radius:7px;display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;transition:width .35s ease}
+.fb b{font-family:var(--head);font-weight:600;font-size:20px}
+.fb span{font-size:12px;font-weight:700;opacity:.9}
+.rate{margin:6px 0;font-size:11.5px;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:30px;padding:3px 11px;white-space:nowrap}
+.rate::before{content:"↓ ";color:var(--pink)}
+.fnote{margin:10px 0 0;font-size:10.5px;color:var(--muted);text-align:center;line-height:1.4}
+
+/* lists */
+.lists{grid-area:lists;display:grid;grid-template-rows:1fr 1fr;gap:14px;min-width:0}
+.list{padding:13px 18px 8px;display:flex;flex-direction:column;min-width:0}
+.list dl{margin:4px 0 0;flex:1;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-auto-rows:minmax(30px,1fr)}
+.list dt,.list dd{display:flex;align-items:center;border-bottom:1px solid var(--line);font-size:13px}
+.list dd{margin:0;justify-content:flex-end;font-family:var(--head);font-weight:600;font-size:14.5px;white-space:nowrap;padding-left:10px}
+.list dt:nth-last-child(2),.list dd:last-child{border-bottom:0}
+.list dd.hi{color:var(--pink-ink)}
+
+/* phone summary bar */
+.mbar{position:fixed;left:0;right:0;top:0;z-index:20;display:none;justify-content:space-around;gap:6px;padding:8px 12px;padding-top:calc(8px + env(safe-area-inset-top));background:rgba(36,21,48,.97);color:#fff;transform:translateY(-110%);visibility:hidden;transition:transform .25s ease,visibility .25s}
+.mbar.show{transform:none;visibility:visible;box-shadow:0 10px 24px -12px rgba(0,0,0,.45)}
+.mbar div{display:flex;flex-direction:column;align-items:center;min-width:0;text-align:center}
+.mbar span{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+.mbar b{font-family:var(--head);font-weight:600;font-size:17px;line-height:1.2;white-space:nowrap}
+
+/* short laptop screens */
+@media (min-width:1100px) and (max-height:700px){
+  .wrap{padding-top:12px;padding-bottom:12px;gap:10px}
+  h1{font-size:24px}
+  .grid{gap:12px}
+  .fld{padding:3px 0}
+  .box{height:33px}
+  .grp{margin-top:9px}
+  .lockrow{padding:8px 12px}
+  .tile{padding:10px 14px}.tile .v{font-size:23px}
+  .fb{height:40px}
+}
+
+/* touch: show − / + buttons */
+@media (max-width:1099px),(pointer:coarse){
+  .st{display:flex}
+  .fld{grid-template-columns:minmax(0,1fr) 150px}
+  .box{height:42px}
+  .box .u{padding:0 3px;font-size:12.5px}
+  .box input{text-align:center;padding:0 2px;font-size:16px;-moz-appearance:textfield}
+  .box input::-webkit-inner-spin-button,.box input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+}
+
+/* tablet */
+@media (max-width:1099px){
+  .wrap{justify-content:flex-start}
+  .grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"tiles tiles" "inputs inputs" "funnel lists"}
+  .inputs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;align-items:start}
+  .inputs .lockrow,.inputs .err{grid-column:1/-1}
+  .lists{grid-template-rows:auto}
+  .mbar{display:flex}
+}
+
+/* phone */
+@media (max-width:760px){
+  .wrap{padding:14px 16px calc(28px + env(safe-area-inset-bottom));gap:12px}
+  header{flex-direction:column;align-items:stretch}
+  h1{font-size:26px}
+  .tools{flex-direction:column;align-items:stretch;gap:4px}
+  .seg button{flex:1;min-height:44px;padding:0 6px;font-size:14px}
+  .reset{align-self:center;min-height:40px}
+  .grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"tiles" "inputs" "funnel" "lists";gap:12px}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tile{padding:12px 14px}
+  .tile .v{font-size:22px}
+  .inputs{grid-template-columns:minmax(0,1fr);padding:12px 14px 8px}
+  .lockrow{padding:12px}
+  .lk{min-height:30px}
+  .fld{grid-template-columns:minmax(0,1fr) 148px;padding:8px 0}
+  .fld label{font-size:14.5px}
+  .fld small{font-size:11.5px}
+  .box{height:44px}
+  .grp{margin-top:16px}
+  .funnel-card{padding:16px 12px 12px}
+  .fb{height:42px}
+  .fb b{font-size:18px}.fb span{font-size:11px}
+  .k{letter-spacing:.14em}
+}
+@media (max-width:360px){.fld{grid-template-columns:minmax(0,1fr) 136px}.st{width:32px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="mbar" id="mbar" aria-hidden="true">
+  <div><span>Subscriptions</span><b id="b-subs">2,194</b></div>
+  <div><span>Revenue</span><b id="b-rev">₹87.8 L</b></div>
+  <div><span id="b-bud-k">Ad budget</span><b id="b-bud">₹37.5 L</b></div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eb">Her Will · Paid marketing</div>
+      <h1>Funnel <em>calculator</em></h1>
+    </div>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Scenario">
+        <button type="button" data-preset="best">Best</button>
+        <button type="button" data-preset="exp" class="on" aria-pressed="true">Expected</button>
+        <button type="button" data-preset="unexp">Unexpected</button>
+      </div>
+      <button type="button" class="reset" id="reset">Reset to Expected</button>
+    </div>
+  </header>
+
+  <p class="nojs" id="nojs"><b>Preview only.</b> This app is showing the file without running it, so these are the Expected numbers and they will not change. Open the calculator's web link in Safari or Chrome to edit the numbers.</p>
+
+  <main class="grid">
+    <section class="tiles" id="tiles" aria-label="Results">
+      <div class="card tile dark"><div class="k">Subscriptions <span class="badge">Locked</span></div><div class="v" id="t-subs">2,194</div><div class="s" id="t-subs-s">73% of the 3,000 goal</div><div class="mini"><i id="t-bar" style="width:73.1333%"></i></div></div>
+      <div class="card tile"><div class="k">Revenue</div><div class="v" id="t-rev">₹87.8 L</div><div class="s">subscriptions × price</div></div>
+      <div class="card tile"><div class="k">Cost per subscription</div><div class="v" id="t-cac">₹1,709</div><div class="s">ad budget ÷ subscriptions</div></div>
+      <div class="card tile"><div class="k">Ad spend per day</div><div class="v" id="t-day">₹40,761</div><div class="s" id="t-day-s">over 92 days</div></div>
+    </section>
+
+    <form class="card inputs" id="form" autocomplete="off" onsubmit="return false">
+      <div class="lockrow"><label class="lk"><input type="checkbox" id="lock"><i></i><span id="lock-tx">Lock 3,000 subscriptions</span></label><small>Keep subscriptions at the goal and calculate the budget needed instead.</small></div>
+      <p class="err" id="err" role="alert"></p>
+      <div class="grp">
+        <h2>Funnel rates</h2>
+        <div class="fld"><label for="ctr">Click rate</label><small>Of 100 ad viewers, how many tap</small><div class="box"><input id="ctr" type="number" value="1.3" inputmode="decimal" enterkeyhint="done" min="0" max="100" step="0.1"><span class="u">%</span></div></div>
+        <div class="fld"><label for="load">Load rate</label><small>Of 100 taps, how many pages load</small><div class="box"><input id="load" type="number" value="75" inputmode="decimal" enterkeyhint="done" min="0" max="100" step="1"><span class="u">%</span></div></div>
+        <div class="fld"><label for="atc">Payment page</label><small>Of 100 visitors, how many reach it</small><div class="box"><input id="atc" type="number" value="4.5" inputmode="decimal" enterkeyhint="done" min="0" max="100" step="0.1"><span class="u">%</span></div></div>
+        <div class="fld"><label for="pay">Pay rate</label><small>Of 100 on that page, how many pay</small><div class="box"><input id="pay" type="number" value="16" inputmode="decimal" enterkeyhint="done" min="0" max="100" step="1"><span class="u">%</span></div></div>
+        <div class="fld"><label for="roas">ROAS</label><small>Revenue for every ₹1 of ads</small><div class="box"><input id="roas" type="number" value="1.96" inputmode="decimal" enterkeyhint="done" min="0" step="0.01"><span class="u">x</span></div></div>
+      </div>
+      <div class="grp">
+        <h2>Campaign</h2>
+        <div class="fld"><label for="budget" id="budget-lb">Ad budget</label><small id="budget-hint">In lakh, for the whole campaign</small><div class="box"><span class="u">₹</span><input id="budget" type="number" value="37.5" inputmode="decimal" enterkeyhint="done" min="0" step="0.1"><span class="u">L</span></div></div>
+        <div class="fld"><label for="cpm">Cost per 1,000 views</label><small>CPM on Meta</small><div class="box"><span class="u">₹</span><input id="cpm" type="number" value="120" inputmode="decimal" enterkeyhint="done" min="0" step="1"></div></div>
+        <div class="fld"><label for="price">Price</label><small>Per subscription</small><div class="box"><span class="u">₹</span><input id="price" type="number" value="4000" inputmode="decimal" enterkeyhint="done" min="0" step="1"></div></div>
+        <div class="fld"><label for="goal">Subscription goal</label><small>For the whole campaign</small><div class="box"><input id="goal" type="number" value="3000" inputmode="numeric" enterkeyhint="done" min="0" step="1"></div></div>
+        <div class="fld"><label for="months">Campaign months</label><small>Used for the monthly numbers</small><div class="box"><input id="months" type="number" value="3" inputmode="numeric" enterkeyhint="done" min="1" step="1"></div></div>
+      </div>
+    </form>
+
+    <section class="card funnel-card" aria-label="Funnel">
+      <div class="k">The funnel</div>
+      <div class="funnel">
+        <div class="fb" style="width:100%;background:#241530"><b id="o-imp">3.12 Cr</b><span>Ad views</span></div>
+        <div class="rate" id="r-ctr">1.3% tap the ad</div>
+        <div class="fb" style="width:85%;background:#44203F"><b id="o-clicks">4,06,250</b><span>Clicks</span></div>
+        <div class="rate" id="r-load">75% load the page</div>
+        <div class="fb" style="width:70%;background:#64294E"><b id="o-views">3,04,688</b><span>Page views</span></div>
+        <div class="rate" id="r-atc">4.5% reach the payment page</div>
+        <div class="fb" style="width:55%;background:#8E335F"><b id="o-pp">13,711</b><span>Payment page</span></div>
+        <div class="rate" id="r-pay">16% pay</div>
+        <div class="fb" style="width:40%;background:#EC5F94"><b id="o-subs">2,194</b><span>Subscriptions</span></div>
+      </div>
+      <p class="fnote">Ad views = budget ÷ CPM × 1,000. Each step uses the rate above it.</p>
+    </section>
+
+    <div class="lists">
+      <section class="card list">
+        <div class="k">Every month</div>
+        <dl>
+          <dt>Ad spend</dt><dd id="m-spend">₹12.5 L</dd>
+          <dt>Subscriptions</dt><dd id="m-subs">731</dd>
+          <dt>Revenue</dt><dd id="m-rev">₹29.3 L</dd>
+          <dt>Cost per click</dt><dd id="m-cpc">₹9.23</dd>
+          <dt>Ad view → subscription</dt><dd id="m-conv">0.007%</dd>
+        </dl>
+      </section>
+      <section class="card list">
+        <div class="k">To reach the goal</div>
+        <dl>
+          <dt>Budget needed</dt><dd id="g-need" class="hi">₹51.3 L</dd>
+          <dt>Budget needed per month</dt><dd id="g-month">₹17.1 L</dd>
+          <dt>Extra over your budget</dt><dd id="g-extra">₹13.8 L</dd>
+          <dt>Ad views needed</dt><dd id="g-imp">4.27 Cr</dd>
+          <dt>Subscriptions short</dt><dd id="g-short">806</dd>
+        </dl>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  document.getElementById('nojs').remove();
+  const PRESETS = {
+    best:  { ctr: 1.6, load: 85, atc: 5,   pay: 24, roas: 2.56 },
+    exp:   { ctr: 1.3, load: 75, atc: 4.5, pay: 16, roas: 1.96 },
+    unexp: { ctr: 1,   load: 60, atc: 4,   pay: 10, roas: 1.57 }
+  };
+  const BASE = { budget: 37.5, cpm: 120, price: 4000, goal: 3000, months: 3, ...PRESETS.exp };
+  const IDS = Object.keys(BASE);
+  const RATES = ['ctr', 'load', 'atc', 'pay'];
+  const STEP = { budget: 1, cpm: 10, price: 100, goal: 100, months: 1, ctr: 0.1, load: 1, atc: 0.1, pay: 1, roas: 0.1 };
+  const $ = id => document.getElementById(id);
+  const IN = Object.fromEntries(IDS.map(id => [id, $(id)]));
+  const DAYS_PER_MONTH = 92 / 3;
+  const lock = $('lock');
+  let ownBudget = BASE.budget;
+
+  const nIN = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
+  const num = v => nIN.format(Math.round(v));
+  const money = v => {
+    if (!isFinite(v)) return '–';
+    const a = Math.abs(v), sign = v < 0 ? '−' : '';
+    if (a >= 1e7) return sign + '₹' + (a / 1e7).toFixed(2) + ' Cr';
+    if (a >= 1e5) return sign + '₹' + (a / 1e5).toFixed(1) + ' L';
+    return sign + '₹' + nIN.format(Math.round(a));
+  };
+  const big = v => v >= 1e7 ? (Math.floor(v / 1e5 + 1e-9) / 100).toFixed(2) + ' Cr' : num(v);
+  const pct = v => (+v.toFixed(2)) + '%';
+  const decimals = x => (String(x).split('.')[1] || '').length;
+
+  function fill(vals) { IDS.forEach(id => { if (vals[id] !== undefined) IN[id].value = vals[id]; }); calc(); }
+
+  function read() {
+    const v = {}, bad = [];
+    IDS.forEach(id => {
+      const raw = IN[id].value.trim();
+      const x = parseFloat(raw);
+      if (id === 'budget' && lock.checked) { IN[id].closest('.box').classList.remove('bad'); v[id] = ownBudget; return; }
+      const ok = raw !== '' && isFinite(x) && x >= 0 && (!RATES.includes(id) || x <= 100) && !(id === 'months' && x < 1) && !(id === 'cpm' && x === 0);
+      IN[id].closest('.box').classList.toggle('bad', !ok);
+      if (!ok) bad.push(IN[id].closest('.fld').querySelector('label').textContent);
+      v[id] = x;
+    });
+    return { v, bad };
+  }
+
+  function calc() {
+    const { v, bad } = read();
+    const err = $('err');
+    if (bad.length) {
+      err.textContent = 'Check ' + bad.join(', ') + '. Use a number of 0 or more; the % rates must be between 0 and 100.';
+      err.classList.add('show');
+      return;
+    }
+    err.classList.remove('show');
+    const locked = lock.checked;
+    const rate = v.ctr * v.load * v.atc * v.pay / 1e8;
+    const own = v.budget * 1e5;
+    const spend = locked ? (rate > 0 ? v.goal * (v.cpm / 1000) / rate : Infinity) : own;
+    if (locked) IN.budget.value = isFinite(spend) ? (spend / 1e5).toFixed(1) : '';
+    if (locked && !isFinite(spend)) { err.textContent = 'Every funnel rate must be above 0% to reach the goal.'; err.classList.add('show'); return; }
+    const imp = spend / v.cpm * 1000;
+    const clicks = imp * v.ctr / 100, views = clicks * v.load / 100, pp = views * v.atc / 100, subs = Math.round(pp * v.pay / 100);
+    const rev = subs * v.price, cac = subs > 0 ? spend / subs : Infinity;
+    const days = v.months * DAYS_PER_MONTH;
+
+    $('o-imp').textContent = big(imp);
+    $('o-clicks').textContent = num(clicks);
+    $('o-views').textContent = num(views);
+    $('o-pp').textContent = num(pp);
+    $('o-subs').textContent = num(subs);
+    $('r-ctr').textContent = pct(v.ctr) + ' tap the ad';
+    $('r-load').textContent = pct(v.load) + ' load the page';
+    $('r-atc').textContent = pct(v.atc) + ' reach the payment page';
+    $('r-pay').textContent = pct(v.pay) + ' pay';
+
+    $('t-subs').textContent = num(subs);
+    $('t-subs-s').textContent = locked ? `Locked at the ${num(v.goal)} goal` : v.goal > 0 ? `${Math.round(subs / v.goal * 100)}% of the ${num(v.goal)} goal` : '';
+    $('t-bar').style.width = (v.goal > 0 ? Math.min(100, subs / v.goal * 100) : 0) + '%';
+    $('t-rev').textContent = money(rev);
+    $('t-cac').textContent = isFinite(cac) ? money(cac) : '–';
+    $('t-day').textContent = money(spend / days);
+    $('t-day-s').textContent = `over ${Math.round(days)} days`;
+    document.body.classList.toggle('is-locked', locked);
+    $('lock-tx').textContent = `Lock ${num(v.goal)} subscriptions`;
+
+    $('b-subs').textContent = num(subs);
+    $('b-rev').textContent = money(rev);
+    $('b-bud-k').textContent = locked ? 'Budget needed' : 'Ad budget';
+    $('b-bud').textContent = money(spend);
+
+    $('m-spend').textContent = money(spend / v.months);
+    $('m-subs').textContent = num(subs / v.months);
+    $('m-rev').textContent = money(rev / v.months);
+    $('m-cpc').textContent = clicks > 0 ? '₹' + (spend / clicks).toFixed(2) : '–';
+    $('m-conv').textContent = (v.ctr * v.load * v.atc * v.pay / 1e6).toFixed(3) + '%';
+
+    const need = isFinite(cac) ? v.goal * cac : Infinity;
+    $('g-need').textContent = isFinite(need) ? money(need) : '–';
+    $('g-month').textContent = isFinite(need) ? money(need / v.months) : '–';
+    $('g-extra').textContent = !isFinite(need) ? '–' : need > own ? money(need - own) : 'None · ' + money(own - need) + ' left';
+    $('g-imp').textContent = isFinite(need) ? big(need / v.cpm * 1000) : '–';
+    $('g-short').textContent = subs >= v.goal ? '0' : num(v.goal - subs);
+
+    const match = Object.keys(PRESETS).find(k => [...RATES, 'roas'].every(f => PRESETS[k][f] === v[f]));
+    document.querySelectorAll('[data-preset]').forEach(b => {
+      b.classList.toggle('on', b.dataset.preset === match);
+      b.setAttribute('aria-pressed', b.dataset.preset === match);
+    });
+  }
+
+  function setLock(on) {
+    if (on) ownBudget = parseFloat(IN.budget.value) || ownBudget;
+    lock.checked = on;
+    IN.budget.readOnly = on;
+    IN.budget.closest('.box').classList.toggle('calc', on);
+    $('budget-lb').textContent = on ? 'Budget needed' : 'Ad budget';
+    $('budget-hint').textContent = on ? 'Calculated from the goal and the rates' : 'In lakh, for the whole campaign';
+    if (!on) IN.budget.value = ownBudget;
+    calc();
+  }
+
+  // − / + buttons for touch screens
+  document.querySelectorAll('.box').forEach(box => {
+    const input = box.querySelector('input');
+    const name = box.closest('.fld').querySelector('label').textContent;
+    const make = (d, sym) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'st'; b.textContent = sym; b.tabIndex = -1;
+      b.setAttribute('aria-label', (d < 0 ? 'Decrease ' : 'Increase ') + name);
+      b.addEventListener('click', () => {
+        if (input.readOnly) return;
+        const id = input.id, cur = parseFloat(input.value) || 0;
+        let x = cur + d * STEP[id];
+        x = Math.max(id === 'months' ? 1 : 0, x);
+        if (RATES.includes(id)) x = Math.min(100, x);
+        input.value = +x.toFixed(Math.max(decimals(STEP[id]), decimals(cur)));
+        calc();
+      });
+      return b;
+    };
+    box.prepend(make(-1, '−'));
+    box.append(make(1, '+'));
+  });
+
+  // phone: keep the key numbers in view once the result cards scroll away
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => $('mbar').classList.toggle('show', !e.isIntersecting && e.boundingClientRect.top < 0))
+      .observe($('tiles'));
+  }
+
+  lock.addEventListener('change', () => setLock(lock.checked));
+  IDS.forEach(id => IN[id].addEventListener('input', calc));
+  document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => { ownBudget = BASE.budget; fill({ ...BASE, ...PRESETS[b.dataset.preset] }); }));
+  $('reset').addEventListener('click', () => { ownBudget = BASE.budget; setLock(false); fill(BASE); });
+  fill(BASE);
+})();
+</script>
+</body>
+</html>
